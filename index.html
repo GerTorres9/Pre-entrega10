@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechCore Hardware | APIs, Peticiones Fetch y Librerías (Pre-Entrega 10)</title>
+
+    <!-- Librería 1 (CDN): Toastify JS para notificaciones tipo toast no intrusivas -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" defer></script>
+
+    <!-- Librería 2 (CDN): SweetAlert2 para alertas enriquecidas, confirmaciones y errores de red -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+
+    <!-- Estilos y lógica principal del simulador -->
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/main.js" defer></script>
+</head>
+<body>
+    <header class="encabezado-sitio">
+        <div class="contenedor cabecera-flex">
+            <div>
+                <span class="insignia-modulo">JavaScript · Pre-Entrega 10: APIs, Peticiones y Librerías</span>
+                <h1>TechCore Hardware &amp; PC</h1>
+                <p class="subtitulo">
+                    Consumo de datos con <code>fetch("./data.json")</code> y API externa (FakeStore API),
+                    <code>async / await</code>, manejo de errores <code>try / catch / finally</code>
+                    y notificaciones con <strong>SweetAlert2</strong> + <strong>Toastify JS</strong>.
+                </p>
+            </div>
+            <div class="acciones-storage">
+                <button type="button" id="boton-fetch-json" class="boton-secundario">
+                    📥 Fetch ./data.json
+                </button>
+                <button type="button" id="boton-fetch-api" class="boton-secundario">
+                    🌐 Fetch FakeStore API
+                </button>
+                <button type="button" id="boton-fetch-error" class="boton-alerta-suave">
+                    ⚠️ Simular Error Fetch (404)
+                </button>
+                <button type="button" id="boton-restaurar-storage" class="boton-peligro-suave">
+                    Restaurar Base
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenedor">
+        <!-- Aviso asíncrono con tipo de cambio obtenido por fetch / temporizador -->
+        <aside id="aviso-temporizador" class="aviso-temporizador oculto" aria-live="polite">
+            <div class="aviso-contenido">
+                <span class="icono-aviso">🔔</span>
+                <div>
+                    <strong id="titulo-aviso-temporizador">Consultando cotización USD...</strong>
+                    <p id="texto-aviso-temporizador"></p>
+                </div>
+            </div>
+            <div class="aviso-acciones">
+                <button type="button" id="boton-aplicar-cupon-aviso" class="boton-primario-pequeno">
+                    Activar Cupón TECH10 (-10%)
+                </button>
+                <button type="button" id="boton-cerrar-aviso" class="boton-cerrar-aviso" aria-label="Cerrar aviso">
+                    ✕
+                </button>
+            </div>
+        </aside>
+
+        <!-- Panel de métricas en tiempo real -->
+        <section class="panel-metricas" aria-label="Resumen del simulador">
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Modelos Cargados</span>
+                <strong id="metrica-total-modelos" class="valor-metrica">0</strong>
+            </article>
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Valor Total en Stock</span>
+                <strong id="metrica-valor-inventario" class="valor-metrica">$0 MXN</strong>
+            </article>
+            <article class="tarjeta-metrica">
+                <span class="etiqueta-metrica">Unidades en Carrito</span>
+                <strong id="metrica-unidades-cotizadas" class="valor-metrica">0</strong>
+            </article>
+            <article class="tarjeta-metrica destacada">
+                <span class="etiqueta-metrica">Total Carrito (IVA incl.)</span>
+                <strong id="metrica-total-cotizado" class="valor-metrica">$0 MXN</strong>
+            </article>
+        </section>
+
+        <!-- Banner de Feedback Visual y estado de Peticiones Fetch (try / catch / finally) -->
+        <div id="mensaje-feedback" class="banner-feedback feedback-cargando" role="status" aria-live="polite">
+            <span id="texto-feedback">⏳ Cargando productos mediante fetch("./data.json")...</span>
+            <small id="estado-finally" class="etiqueta-finally">Esperando respuesta HTTP...</small>
+        </div>
+
+        <!-- Formulario para agregar un nuevo objeto al catálogo -->
+        <section class="panel-formulario">
+            <h2>Agregar Nuevo Componente al Catálogo</h2>
+            <form id="formulario-producto" class="grilla-formulario" novalidate>
+                <div class="campo-formulario">
+                    <label for="input-nombre">Nombre del componente</label>
+                    <input
+                        type="text"
+                        id="input-nombre"
+                        placeholder="Ej. Enfriamiento Líquido AIO 360mm"
+                        autocomplete="off"
+                    />
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="select-categoria">Categoría</label>
+                    <select id="select-categoria">
+                        <option value="Procesadores">Procesadores</option>
+                        <option value="Tarjetas de Video">Tarjetas de Video</option>
+                        <option value="Memorias RAM">Memorias RAM</option>
+                        <option value="Almacenamiento">Almacenamiento</option>
+                        <option value="Monitores">Monitores</option>
+                        <option value="Periféricos">Periféricos</option>
+                        <option value="Fuentes de Poder">Fuentes de Poder</option>
+                    </select>
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="input-precio">Precio ($ MXN)</label>
+                    <input
+                        type="number"
+                        id="input-precio"
+                        placeholder="Ej. 3200"
+                        min="1"
+                        step="50"
+                    />
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="input-stock">Stock inicial</label>
+                    <input
+                        type="number"
+                        id="input-stock"
+                        placeholder="Ej. 8"
+                        min="1"
+                        max="999"
+                        value="5"
+                    />
+                </div>
+
+                <div class="acciones-formulario">
+                    <button type="button" id="boton-agregar" class="boton-primario">
+                        + Agregar Componente
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Barra de búsqueda por evento de teclado -->
+        <section class="panel-herramientas">
+            <div class="caja-busqueda">
+                <label for="input-busqueda">Filtrar con el teclado (presiona <code>Esc</code> para limpiar):</label>
+                <input
+                    type="search"
+                    id="input-busqueda"
+                    placeholder="Busca por nombre, categoría o fuente (ej. Ryzen, RTX, Monitor)..."
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="acciones-cotizacion">
+                <button type="button" id="boton-vaciar-carrito" class="boton-secundario">
+                    Vaciar Carrito
+                </button>
+            </div>
+        </section>
+
+        <!-- Layout Principal: Catálogo Renderizado desde Fetch + Carrito y Checkout -->
+        <div class="layout-principal">
+            <section class="seccion-listado">
+                <div class="encabezado-listado">
+                    <h2>Catálogo de Hardware (<span id="etiqueta-fuente-datos">./data.json</span>)</h2>
+                    <span id="contador-resultados" class="contador-resultados">⏳ Cargando productos...</span>
+                </div>
+                <div id="contenedor-items" class="grilla-items"></div>
+            </section>
+
+            <aside class="panel-carrito-persistente">
+                <div class="encabezado-listado">
+                    <h2>Carrito de Compra</h2>
+                    <span id="insignia-cupon" class="insignia-cupon oculto">TECH10 (-10%)</span>
+                </div>
+                <div id="contenedor-carrito" class="lista-carrito"></div>
+
+                <div class="pie-carrito">
+                    <button type="button" id="boton-confirmar-compra" class="boton-primario boton-ancho-completo">
+                        Confirmar Compra (SweetAlert2)
+                    </button>
+                </div>
+
+                <div id="contenedor-orden-confirmada" class="recibo-orden oculto"></div>
+            </aside>
+        </div>
+    </main>
+</body>
+</html>

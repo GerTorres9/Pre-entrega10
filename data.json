@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "nombre": "Procesador AMD Ryzen 7 7800X3D",
+    "categoria": "Procesadores",
+    "precio": 8400,
+    "stock": 8
+  },
+  {
+    "id": 2,
+    "nombre": "Tarjeta Gráfica NVIDIA RTX 4070 Super",
+    "categoria": "Tarjetas de Video",
+    "precio": 13900,
+    "stock": 5
+  },
+  {
+    "id": 3,
+    "nombre": "Memoria RAM Kit 32GB DDR5 6000MHz",
+    "categoria": "Memorias RAM",
+    "precio": 2450,
+    "stock": 12
+  },
+  {
+    "id": 4,
+    "nombre": "Unidad SSD NVMe M.2 Gen4 2TB",
+    "categoria": "Almacenamiento",
+    "precio": 2850,
+    "stock": 15
+  },
+  {
+    "id": 5,
+    "nombre": "Monitor Gamer 27'' QHD 180Hz IPS",
+    "categoria": "Monitores",
+    "precio": 5600,
+    "stock": 6
+  },
+  {
+    "id": 6,
+    "nombre": "Teclado Mecánico RGB Switch Red",
+    "categoria": "Periféricos",
+    "precio": 1650,
+    "stock": 14
+  },
+  {
+    "id": 7,
+    "nombre": "Mouse Inalámbrico Pro Sensor 26K DPI",
+    "categoria": "Periféricos",
+    "precio": 1290,
+    "stock": 20
+  },
+  {
+    "id": 8,
+    "nombre": "Fuente de Poder 850W 80+ Gold Modular",
+    "categoria": "Fuentes de Poder",
+    "precio": 2690,
+    "stock": 9
+  }
+]
